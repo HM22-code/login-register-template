@@ -18,7 +18,7 @@ import java.util.Collections;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class User implements UserDetails {
+public class AppUser implements UserDetails {
 
     @Id
     private Long id;
@@ -28,7 +28,7 @@ public class User implements UserDetails {
     private String email;
     private String password;
     @Enumerated(EnumType.STRING)
-    private UserRole role;
+    private AppUserRole role;
     private Boolean locked;
     private Boolean enabled;
 
