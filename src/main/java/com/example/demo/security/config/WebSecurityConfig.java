@@ -25,7 +25,7 @@ public class WebSecurityConfig {
     private final AppUserService appUserService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    @Bean
+    @Autowired
     public void configureGlobal(AuthenticationManagerBuilder builder) throws Exception {
         builder.userDetailsService(appUserService).passwordEncoder(bCryptPasswordEncoder);
     }
