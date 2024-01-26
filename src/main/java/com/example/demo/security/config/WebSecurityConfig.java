@@ -22,7 +22,10 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @EnableWebSecurity
 public class WebSecurityConfig {
 
+    @Autowired
     private final AppUserService appUserService;
+
+    @Autowired
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Autowired
@@ -34,9 +37,9 @@ public class WebSecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
-                .securityMatcher("/api/v1/registration/**")
+                .securityMatcher("/api/registration/**")
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/api/v1/registration/**").permitAll()
+                        .requestMatchers("/api/registration/**").permitAll()
                         //.requestMatchers("/api/admin/**").hasRole("ADMIN")
                         //.requestMatchers("/api/user/**").hasRole("USER")
                         .anyRequest().authenticated()
