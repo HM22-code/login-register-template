@@ -10,10 +10,6 @@ import java.util.Optional;
 @Repository
 public interface AppUserRepository extends JpaRepository<AppUser, Long> {
 
-    Optional<AppUser> findByEmail(String email);
-
-    @Modifying
-    @Query("UPDATE AppUser a SET a.enabled = TRUE WHERE a.email = ?1")
-    int enableUser(String email);
+    Optional<AppUser> findByUsername(String username);
 
 }

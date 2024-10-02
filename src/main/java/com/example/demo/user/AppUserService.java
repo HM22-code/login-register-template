@@ -1,6 +1,14 @@
 package com.example.demo.user;
 
 import lombok.AllArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -9,15 +17,22 @@ import org.springframework.stereotype.Service;
 @Service
 @AllArgsConstructor
 public class AppUserService implements UserDetailsService {
-    private final static String USER_NOT_FOUND_MSG = "user with email %s not found";
+	
+	@Autowired
     private final AppUserRepository userRepository;
+	
+	private final static String USER_NOT_FOUND_MSG = "user with username %s not found";
 
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        return userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException(String.format(USER_NOT_FOUND_MSG, email)));
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        AppUser user = userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException(String.format(USER_NOT_FOUND_MSG, username)));
+    	return new User(user.getUsername(), user.getPassword(), getGrantedAuthorities(user.getRole()));
     }
+    
+    private List<GrantedAuthority> getGrantedAuthorities(String role) {
+		List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+		authorities.add(new SimpleGrantedAuthority("ROLE_" + role));
+		return authorities;
+	}
 
-    public int enableUser(String email) {
-        return userRepository.enableUser(email);
-    }
 }

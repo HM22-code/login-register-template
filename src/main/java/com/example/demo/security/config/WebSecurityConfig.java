@@ -12,7 +12,11 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 import static org.springframework.security.config.Customizer.withDefaults;
@@ -25,27 +29,25 @@ public class WebSecurityConfig {
     @Autowired
     private final AppUserService appUserService;
 
-    @Autowired
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
-
-    @Autowired
-    public void configureGlobal(AuthenticationManagerBuilder builder) throws Exception {
-        builder.userDetailsService(appUserService).passwordEncoder(bCryptPasswordEncoder);
-    }
-
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        return http
-                .csrf(AbstractHttpConfigurer::disable)
-                .securityMatcher("/api/registration/**")
-                .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/api/registration/**").permitAll()
-                        //.requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        //.requestMatchers("/api/user/**").hasRole("USER")
-                        .anyRequest().authenticated()
-                )
-                .formLogin(Customizer.withDefaults())
-                .build();
-    }
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		return http.authorizeHttpRequests(auth -> {
+			auth.requestMatchers("/admin").hasRole("ADMIN");
+			auth.requestMatchers("/user").hasRole("USER");
+			auth.anyRequest().authenticated();
+		}).formLogin(Customizer.withDefaults()).build();
+	}
+	
+	@Bean
+	public BCryptPasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
+	}	
+	
+	@Bean
+	public AuthenticationManager authenticationManager(HttpSecurity http, BCryptPasswordEncoder bCryptPasswordEncoder) throws Exception {
+		AuthenticationManagerBuilder authenticationManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
+		authenticationManagerBuilder.userDetailsService(appUserService).passwordEncoder(bCryptPasswordEncoder);
+		return authenticationManagerBuilder.build();
+	}
 
 }
